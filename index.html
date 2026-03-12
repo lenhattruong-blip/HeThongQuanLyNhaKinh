@@ -90,30 +90,31 @@
         </div>
 
         <div class="card">
-            <h3>Quạt thổi khí</h3>
-            <div class="value status-off" id="fan">TẮT</div>
+            <h3>Quạt hút khí (Ra)</h3>
+            <div class="value status-off" id="fan-out">TẮT</div>
         </div>
+
         <div class="card">
-            <h3>Quạt hút khí</h3>
-            <div class="value status-off1" id="fan">TẮT</div>
+            <h3>Quạt thổi khí (Vào)</h3>
+            <div class="value status-off" id="fan-in">TẮT</div>
         </div>
     </div>
 
     <script>
-        // Hàm này dùng để tạo số ngẫu nhiên (Mô phỏng dữ liệu từ ESP32 gửi lên)
+      
         function getRandomData(min, max) {
             return (Math.random() * (max - min) + min).toFixed(1);
         }
 
-        // Cứ mỗi 2 giây (2000ms), hàm này sẽ chạy để cập nhật giao diện
+     
         setInterval(function() {
-            // Cập nhật thông số cảm biến
+         
             document.getElementById('temp').innerText = getRandomData(25, 35);
             document.getElementById('hum').innerText = getRandomData(60, 90);
             document.getElementById('soil').innerText = getRandomData(40, 80);
-            document.getElementById('co2').innerText = Math.floor(getRandomData(400, 1000)); // CO2 thường là số nguyên
+            document.getElementById('co2').innerText = Math.floor(getRandomData(400, 1000)); 
 
-            // Mô phỏng logic tự động: Nếu độ ẩm đất < 50%, bật bơm
+            
             let currentSoil = parseFloat(document.getElementById('soil').innerText);
             let pumpStatus = document.getElementById('pump');
             
@@ -125,16 +126,23 @@
                 pumpStatus.className = "value status-off";
             }
 
-            // Mô phỏng logic tự động: Nếu nhiệt độ > 32, bật quạt
             let currentTemp = parseFloat(document.getElementById('temp').innerText);
-            let fanStatus = document.getElementById('fan');
+            let fanOutStatus = document.getElementById('fan-out');
+            let fanInStatus = document.getElementById('fan-in');
 
             if(currentTemp > 32) {
-                fanStatus.innerText = "ĐANG QUẠT";
-                fanStatus.className = "value status-on";
+                // Bật quạt hút
+                fanOutStatus.innerText = "ĐANG QUẠT";
+                fanOutStatus.className = "value status-on";
+                // Bật quạt thổi
+                fanInStatus.innerText = "ĐANG QUẠT";
+                fanInStatus.className = "value status-on";
             } else {
-                fanStatus.innerText = "TẮT";
-                fanStatus.className = "value status-off";
+                fanOutStatus.innerText = "TẮT";
+                fanOutStatus.className = "value status-off";
+                // Tắt quạt thổi
+                fanInStatus.innerText = "TẮT";
+                fanInStatus.className = "value status-off";
             }
 
         }, 2000);
