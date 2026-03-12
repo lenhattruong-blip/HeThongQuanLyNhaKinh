@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32-S3 Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            width: 200px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2980b9;
+            margin: 10px 0;
+        }
+        .unit {
+            font-size: 14px;
+            color: #95a5a6;
+        }
+        .status-on { color: #27ae60; font-weight: bold; }
+        .status-off { color: #c0392b; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>Bảng Điều Khiển Hệ Thống Nhà Kính</h1>
+
+    <div class="dashboard">
+        <div class="card">
+            <h3>Nhiệt độ không khí</h3>
+            <div class="value" id="temp">--</div>
+            <div class="unit">°C</div>
+        </div>
+        
+        <div class="card">
+            <h3>Độ ẩm không khí</h3>
+            <div class="value" id="hum">--</div>
+            <div class="unit">%</div>
+        </div>
+
+        <div class="card">
+            <h3>Độ ẩm đất</h3>
+            <div class="value" id="soil">--</div>
+            <div class="unit">%</div>
+        </div>
+
+        <div class="card">
+            <h3>Nồng độ CO2</h3>
+            <div class="value" id="co2">--</div>
+            <div class="unit">ppm</div>
+        </div>
+
+        <div class="card">
+            <h3>Máy bơm nước</h3>
+            <div class="value status-off" id="pump">TẮT</div>
+        </div>
+
+        <div class="card">
+            <h3>Quạt thổi khí</h3>
+            <div class="value status-off" id="fan">TẮT</div>
+        </div>
+        <div class="card">
+            <h3>Quạt hút khí</h3>
+            <div class="value status-off1" id="fan">TẮT</div>
+        </div>
+    </div>
+
+    <script>
+        // Hàm này dùng để tạo số ngẫu nhiên (Mô phỏng dữ liệu từ ESP32 gửi lên)
+        function getRandomData(min, max) {
+            return (Math.random() * (max - min) + min).toFixed(1);
+        }
+
+        // Cứ mỗi 2 giây (2000ms), hàm này sẽ chạy để cập nhật giao diện
+        setInterval(function() {
+            // Cập nhật thông số cảm biến
+            document.getElementById('temp').innerText = getRandomData(25, 35);
+            document.getElementById('hum').innerText = getRandomData(60, 90);
+            document.getElementById('soil').innerText = getRandomData(40, 80);
+            document.getElementById('co2').innerText = Math.floor(getRandomData(400, 1000)); // CO2 thường là số nguyên
+
+            // Mô phỏng logic tự động: Nếu độ ẩm đất < 50%, bật bơm
+            let currentSoil = parseFloat(document.getElementById('soil').innerText);
+            let pumpStatus = document.getElementById('pump');
+            
+            if(currentSoil < 50) {
+                pumpStatus.innerText = "ĐANG BƠM";
+                pumpStatus.className = "value status-on";
+            } else {
+                pumpStatus.innerText = "TẮT";
+                pumpStatus.className = "value status-off";
+            }
+
+            // Mô phỏng logic tự động: Nếu nhiệt độ > 32, bật quạt
+            let currentTemp = parseFloat(document.getElementById('temp').innerText);
+            let fanStatus = document.getElementById('fan');
+
+            if(currentTemp > 32) {
+                fanStatus.innerText = "ĐANG QUẠT";
+                fanStatus.className = "value status-on";
+            } else {
+                fanStatus.innerText = "TẮT";
+                fanStatus.className = "value status-off";
+            }
+
+        }, 2000);
+    </script>
+
+</body>
+</html>
